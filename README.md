@@ -13,5 +13,17 @@
 - Publisher
   - Mono[0|1]: 데이터를 한 건도 emit하지 않거나 단 한 건만 emit하는 단발성 데이터에 특화된 Publisher
   - Flux[N]: 0개부터 N개, 즉 무한대의 데이터를 emit할 수 있는 Publisher
+- Subscriber
 
+## Backpressure 전략
+- `IGNORE`: Backpressure를 적용하지 않음
+- `ERROR`: Downstream으로 전달할 데이터가 버퍼에 가득 찰 경우, Exception을 발생시킴
+  - OverflowException(IllegalStateExeption)이 발생
+  - Error 시그널을 Subscriber에게 전송하고 삭제한 데이터는 폐기
+- `DROP`: Downstream으로 전달할 데이터가 버퍼에 가득 찰 경우, 버퍼 밖에서 대기하는 먼저 emit된 데이터부터 Drop 시킴
+  - 버퍼 바깥쪽에 있는 데이터를 폐기
+- `LATEST`: Downstream으로 전달할 데이터가 버퍼에 가득 찰 경우, 버퍼 밖에서 대기하는 가장 최근에(나중에) emit된 데이터부터 버퍼에 채움
+  - 새로운 데이터가 버퍼에 들어오는 시점에 가장 최근의 데이터만 남겨 두고 나머지 데이터를 폐기
+  - 버퍼 바깥쪽에 있는 데이터를 폐기
+- `BUFFER`: Downstream으로 전달할 데이터가 버퍼에 가득 찰 경우, 버퍼 안에 있는 데이터부터 Drop시킴
 # WebFlux

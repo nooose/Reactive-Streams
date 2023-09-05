@@ -26,4 +26,13 @@
   - 새로운 데이터가 버퍼에 들어오는 시점에 가장 최근의 데이터만 남겨 두고 나머지 데이터를 폐기
   - 버퍼 바깥쪽에 있는 데이터를 폐기
 - `BUFFER`: Downstream으로 전달할 데이터가 버퍼에 가득 찰 경우, 버퍼 안에 있는 데이터부터 Drop시킴
+
+## Sinks
+프로그래밍 방식으로 Signal을 전송할 수 있으며, 멀티 쓰레드 환경에서 쓰레드 안전성을 보장받을 수 있다.
+- `Sinks.one`: 한 건의 데이터를 프로그래밍 방식으로 emit
+- `Sinks.Many`: 여러 건의 데이터를 프로그래밍 방식으로 emit
+  - `UnicastSpec`: 단 하나의 Subscriber에게만 데이터를 emit
+  - `MulticastSpec`: 하나 이상의 Subscriber에게 데이터를 emit
+  - `MulticastReplaySpec`: emit된 데이터 중에서 특정 시점으로 되돌린(replay) 데이터부터 emit
+
 # WebFlux

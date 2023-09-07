@@ -52,4 +52,13 @@
   - 별도의 스레드 풀을 사용하므로 Blocking I/O 작업에 최적화됨
 - `Schedulers.parallel()`: Non-Blocking I/O에 최적화되어 있는 Scheduler로서 CPU 코어 수만킁믜 스레드를 생성
 - `Schedulers.newXXXX()`: 새로운 커스텀 스레드 풀인 Scheduler 인스턴스를 생성할 수 있다.
+
+## Context
+- Context는 구독이 발생할 때마다 하나의 Context가 해당 구독에 연결된다.
+- Context는 Operator 체인의 아래에서 위로 전파된다.
+- 동일한 키의 값이라면 Operator 체인상에서 가장 위쪽에 위치한 `contextWrite()` 메서드에서 저장한 값으로 덮어쓴다.
+- Inner Sequence 내부에서는 외부 Context에 저장된 데이터를 읽을 수 있다.
+- 반대로 Inner Sequence 외부에서는 Inner Sequence 내부 Context에 저장된 데이터를 읽을 수 없다.
+- **Context는 인증 정보 같은 독립성을 가지는 정보를 전송하는 데 적합하다.**
+
 # WebFlux

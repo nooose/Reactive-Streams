@@ -61,4 +61,8 @@
 - 반대로 Inner Sequence 외부에서는 Inner Sequence 내부 Context에 저장된 데이터를 읽을 수 없다.
 - **Context는 인증 정보 같은 독립성을 가지는 정보를 전송하는 데 적합하다.**
 
+## Debugging
+- `Hooks.onOperatorDebug()`: 모든 Operator의 스택트레이스를 캡처하므로 프로덕션 환경에서는 사용하면 안 된다.
+- `checkPoint()`: 특정 Operator 체인 내의 스택트레이스만 캡처한다.
+- `log()`: 추가 지점의 Reactor Signal을 출력, 사용 개수에 제한이 없어 1개 이상 메서드 사용이 가능
 # WebFlux

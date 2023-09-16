@@ -65,4 +65,13 @@
 - `Hooks.onOperatorDebug()`: 모든 Operator의 스택트레이스를 캡처하므로 프로덕션 환경에서는 사용하면 안 된다.
 - `checkPoint()`: 특정 Operator 체인 내의 스택트레이스만 캡처한다.
 - `log()`: 추가 지점의 Reactor Signal을 출력, 사용 개수에 제한이 없어 1개 이상 메서드 사용이 가능
+
+## Operator
+### 생성
+- `just()`: Hot Publisher, 구독 여부와는 상관없이 데이터를 emit하고, 구독이 발생하면 emit된 데이터를 다시 재생(replay)해서 전달한다.
+- `defer()`: 구독이 발생하기 전까지 데이터의 emit을 지연시킨다.
+- `using()`: 파라미터로 전달받은 resource를 emit하는 Flux 생성
+- `generator()`: 프로그래밍 방식으로 Signal 이벤트를 발생시키며, 동기 순차적으로 emit한다.
+- `create()`: generator()와 달리 한 번에 여러 건의 데이터를 비동기적으로 emit할 수 있다.
+
 # WebFlux

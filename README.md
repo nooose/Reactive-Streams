@@ -159,7 +159,7 @@ WebFilter의 구현체는 Bean으로 등록되는 반면, HandlerFilterFunction 
 ```java
 @Configuration
 public class LogRouterFunction {
-
+    // @RequestMapping 어노테이션과 같은 역할을 한다
     @Bean
     public RouterFunction routerFunction() {
         return RouterFunctions.route(GET("/v1/router/books/{bookId}"), this::getBookName)

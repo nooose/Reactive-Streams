@@ -1,4 +1,4 @@
-package webflux.controller;
+package webflux.ui;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 @RestController
 public class SpringReactiveController {
 
-    @GetMapping("/v1/book")
+    @GetMapping("/book")
     public Mono<String> getBookName() throws InterruptedException {
         Thread.sleep(500L);
         String bookName = "noose";

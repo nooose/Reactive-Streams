@@ -1,12 +1,12 @@
 package webflux.ui;
 
-import webflux.application.Book;
+import webflux.application.BookRequest;
 
 public record BookResponse(
-        String name
+        String title
 ) {
 
-    public static BookResponse from(Book book) {
-        return new BookResponse(book.name());
+    public static BookResponse from(BookRequest book) {
+        return new BookResponse(book.title());
     }
 }

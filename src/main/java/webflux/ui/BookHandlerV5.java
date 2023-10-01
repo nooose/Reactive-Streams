@@ -9,28 +9,45 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import webflux.application.BookRequest;
+import webflux.application.BookService;
 import webflux.application.BookValidator;
+import webflux.domain.Book;
 
 import java.net.URI;
 
 @RequiredArgsConstructor
 @Component
-public class BookHandler {
+public class BookHandlerV5 {
     private final BookValidator validator;
+    private final BookService bookService;
 
     public Mono<ServerResponse> createBook(ServerRequest request) {
         return request.bodyToMono(BookRequest.class)
                 .doOnNext(this::validate) // Operator 체인 내에서 검증
-                .flatMap(book -> ServerResponse.created(URI.create("/v1/books" + 1))
+                .flatMap(book -> bookService.createBook(new Book(book.id(), book.title())))
+                .flatMap(book -> ServerResponse.created(URI.create("/v5/books" + book.getId()))
+                        .build());
+    }
+
+    public Mono<ServerResponse> updateBook(ServerRequest request) {
+        Long id = Long.valueOf(request.pathVariable("bookId"));
+
+        return request.bodyToMono(BookRequest.class)
+                .doOnNext(this::validate) // Operator 체인 내에서 검증
+                .flatMap(book -> bookService.updateBook(id, new Book(null, book.title())))
+                .flatMap(book -> ServerResponse.created(URI.create("/v5/books" + book.getId()))
                         .build());
     }
 
     public Mono<ServerResponse> getBook(ServerRequest request) {
         Long id = Long.valueOf(request.pathVariable("bookId"));
-        BookRequest book = new BookRequest(id, "");
-        return ServerResponse.ok()
-                .bodyValue(book)
-                .switchIfEmpty(ServerResponse.notFound().build());
+        return bookService.findBook(id)
+                .flatMap(book -> ServerResponse.ok().bodyValue(book));
+    }
+
+    public Mono<ServerResponse> getBooks(ServerRequest request) {
+        return bookService.findBooks()
+                .flatMap(book -> ServerResponse.ok().bodyValue(book));
     }
 
     private void validate(BookRequest book) {

@@ -10,12 +10,12 @@ public class BookValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return Book.class.isAssignableFrom(clazz);
+        return BookRequest.class.isAssignableFrom(clazz);
     }
 
     @Override
     public void validate(Object target, Errors errors) {
-        Book book = (Book) target;
+        BookRequest book = (BookRequest) target;
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "field.required");
     }
 }

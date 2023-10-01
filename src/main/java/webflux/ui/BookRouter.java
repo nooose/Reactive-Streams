@@ -10,10 +10,10 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class BookRouter {
 
     @Bean
-    public RouterFunction<?> routeBook(BookHandler handler) {
+    public RouterFunction<?> routeBook(BookHandlerV5 handler) {
         return route()
-                .GET("/v1/books/{bookId}", handler::getBook)
-                .POST("/v1/books", handler::createBook)
+                .GET("/v5/books/{bookId}", handler::getBook)
+                .POST("/v5/books", handler::createBook)
                 .build();
     }
 }

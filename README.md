@@ -92,13 +92,13 @@ Spring MVC 서블릿 기반 Blocking I/O 방식의 단점을 해결하기 위해
 
 - 적은 수의 스레드로 대량의 요청을 안정적으로 처리
 - Non-Blocking I/O 방식으로 처리
-  - 스레드가 차단되지 않기 때문에 적은 수의 고정된 스레드 풀을 사용해서 더 많으 요청 처리 가능
-  - **이벤트 루프** 방식 사용
-    1. 클라이언트로부터 들어오는 요청을 요청 핸들러가 전달받음
-    2. 전달받은 요청을 **이벤트 루프**에 푸시
-    3. 이벤트 루프는 네트워크, 데이터베이스 연결 작업 등 비용이 드는 작업에 대한 콜백 등록
-    4. 작업이 완료되면 완료 이벤트를 이벤트 루프에 push
-    5. 등록한 콜백을 호출해 처리 결과를 전달
+    - 스레드가 차단되지 않기 때문에 적은 수의 고정된 스레드 풀을 사용해서 더 많으 요청 처리 가능
+    - **이벤트 루프** 방식 사용
+        1. 클라이언트로부터 들어오는 요청을 요청 핸들러가 전달받음
+        2. 전달받은 요청을 **이벤트 루프**에 푸시
+        3. 이벤트 루프는 네트워크, 데이터베이스 연결 작업 등 비용이 드는 작업에 대한 콜백 등록
+        4. 작업이 완료되면 완료 이벤트를 이벤트 루프에 push
+        5. 등록한 콜백을 호출해 처리 결과를 전달
 
 ## WebFlux의 기술 스택
 
@@ -111,7 +111,9 @@ Spring MVC 서블릿 기반 Blocking I/O 방식의 단점을 해결하기 위해
 | 데이터 액세스 | Spring Data Repositories JDBC, JPA NoSQL | Spring Data Reactive Repositories R2DBC, Mongo, Cassandra, Couchbase |
 
 ## WebFlux 요청 처리 흐름
-1. 클라이언트로부터 요청이 들어오면 Netty 등의 서버 엔진을 거쳐 `HttpHandler`가 들어오는 요청을 전달 받고, `ServerWebExchange(ServerHttpRequest, ServerHttpResponse)`를 생성한 후 `WebFliter` 체인으로 전달
+
+1. 클라이언트로부터 요청이 들어오면 Netty 등의 서버 엔진을 거쳐 `HttpHandler`가 들어오는 요청을 전달
+   받고, `ServerWebExchange(ServerHttpRequest, ServerHttpResponse)`를 생성한 후 `WebFliter` 체인으로 전달
 2. `WebFilter` 체인에서 전처리 과정을 거친 후, `WebHandler` 구현체인 `DispatcherHandler`에게 전달
 3. `DispatcherHandler`는 HandlerMapping List를 Flux의 소스로 전달 받음
 4. `ServerWebExchange`를 처리할 수 있는 핸들러를 조회
@@ -121,42 +123,55 @@ Spring MVC 서블릿 기반 Blocking I/O 방식의 단점을 해결하기 위해
 8. `HandlerResultHandler`가 응답 데이터를 적절하게 처리 후, response로 리턴
 
 ### HttpHandler
+
 request와 response를 처리하기 위해 추상화된 인터페이스
+
 ```java
 public interface HttpHandler {
-    public abstract void handle (HttpExchange exchange) throws IOException;
+    public abstract void handle(HttpExchange exchange) throws IOException;
 }
 ```
+
 ```java
 public class HttpWebHandlerAdapter extends WebHandlerDecorator implements HttpHandler {
         ...
-  
-	@Override
-	public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
+
+    @Override
+    public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
         ...
         ServerWebExchange exchange = createExchange(request, response);
         ...
     }
 }
 ```
+
 ### WebFilter
+
 핸들로가 요청을 처리하기 전에 천처리 작업을 할 수 있게 해줌
+
 ```java
 public interface WebFilter {
-	Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain);
+    Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain);
 }
 ```
+
 ### HandlerFilterFunction
+
 함수형 기반의 요청 핸들러에 적용할 수 있는 Filter
+
 ```java
+
 @FunctionalInterface
 public interface HandlerFilterFunction<T extends ServerResponse, R extends ServerResponse> {
     Mono<R> filter(ServerRequest request, HandlerFunction<T> next);
     ...
 }
 ```
+
 WebFilter의 구현체는 Bean으로 등록되는 반면, HandlerFilterFunction 구현체는 함수형 기반의 요청 핸들러에서 함수 형태로 사용
+
 ```java
+
 @Configuration
 public class LogRouterFunction {
     // @RequestMapping 어노테이션과 같은 역할을 한다
@@ -168,25 +183,44 @@ public class LogRouterFunction {
     ...
 }
 ```
+
 ### DispatcherHandler
+
 Spring MVC의 DispatcherServlet 처럼 중앙에서 먼저 요청을 전달받은 후에 다른 컴포넌트에 요청 처리를 위임
+
 - `HandlerMapping` Bean, `HandlerAdapter` Bean, `HandlerResultHandler` Bean을 검색 후 `List<T>` 객체를 생성
 - `handle(ServerWebExchange exchange)`: `List<HandlerMapping>`을 입력받아 매치되는 Handler 중 첫 번째 핸들러를 사용
 - `invokeHandler(ServerWebExchange exchange, Object handler)`: 핸들러 호출을 위임(Handler 객체와 매핑되는 HanlderAdapter를 통해 이루어짐)
 - `handleResult(ServerWebExchange exchange, HandlerResult)`: 응답 처리를 위임
 
 ### HandlerMapping
+
 - request와 handler object에 대한 매핑을 정의 하는 인터페이스
 - 구현체로는 `RequestMappingHandlerMapping`, `RouterFunctionMapping` 등이 있다.
+
 ```java
 public interface HandlerMapping {
     ...
+
     Mono<Object> getHandler(ServerWebExchange exchange);
 }
 ```
+
 ### HandlerAdapter
+
 - HandlerMapping을 통해 얻은 핸들러를 직접적으로 호출하는 역할
 - 구현체로는 `RequestMappingHandlerAdapter`, `HandlerFunctionAdapter`, `SimpleHandlerAdapter`, `WebSocketHandlerAdapter`가 있다.
 - 두 개의 추상 메서드를 정의
-  1. `supports(Object handler)`
-  2. `handle(ServerWebExchange exchange, Object handler)`: 파라미터로 전달받은 handler object를 통해 핸들러 메서드를 호출
+    1. `supports(Object handler)`
+    2. `handle(ServerWebExchange exchange, Object handler)`: 파라미터로 전달받은 handler object를 통해 핸들러 메서드를 호출
+
+## R2DBC(Reactive Relational Database Connectivity)
+
+관계형 데이터베이스에 리액티브 프로그래밍 API를 제공하기 위한 개방형 사양
+
+- R2DBC 이전에는 몇몇 NoSQL 벤더만 리액티브 데이터베이스 클라이언트를 제공했음
+  - Node.js에서 MongoDB와 찰떡인 이유 중 하나인 것 같음 
+
+### Spring Data R2DBC
+R2DBC 기반 Repository를 쉽게 구현하게 해 준다.
+- 기존 JPA 같은 ORM 프레임워크에서 제공하는 캐싱, 지연 로딩 등 특징들이 제거되어 단순하고 심플한 방법으로 사용 가능
